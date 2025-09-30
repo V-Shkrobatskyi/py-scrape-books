@@ -1,7 +1,7 @@
 from typing import Any, Generator
 
 import scrapy
-from scrapy.http import Response
+import re
 
 
 class BooksSpider(scrapy.Spider):
@@ -16,7 +16,7 @@ class BooksSpider(scrapy.Spider):
         "Five": 5,
     }
 
-    def parse(self, response: Response) -> Generator[dict | Any]:
+    def parse(self, response: scrapy.http.Response) -> Generator[dict | Any]:
         for book in response.css("h3 a::attr(href)").getall():
             yield response.follow(book, callback=self.parse_book)
 
@@ -24,20 +24,26 @@ class BooksSpider(scrapy.Spider):
         if next_page:
             yield response.follow(next_page, callback=self.parse)
 
-    def parse_book(self, response: Response) -> Generator[dict | Any]:
+    def parse_book(self, response: scrapy.http.Response) -> Generator[dict | Any]:
+        instock_text = " ".join(response.css("p.instock::text").getall()).strip()
+        match = re.search(r"(\d+)", instock_text)
+        amount_in_stock = match.group(1) if match else "0"
+
+        rating_class = response.css("p.star-rating::attr(class)").get(default="")
+        rating_word = rating_class.split()[-1] if rating_class else ""
+        rating = self.RATING.get(rating_word, None)
+
         yield {
             "title": response.css("div.product_main h1::text").get(default=""),
             "price": response.css("p.price_color::text").get(default=""),
-            "amount_in_stock": "".join(
-                [s for s in response.css("p.instock::text").getall()[1] if s.isdigit()]
-            ),
-            "rating": self.RATING.get(
-                response.css("p.star-rating::attr(class)").get().split()[-1], None
-            ),
-            "category": response.css("ul.breadcrumb li a::text").getall()[-1],
-            "upc": response.css("table.table.table-striped tr td::text").get(
+            "amount_in_stock": amount_in_stock,
+            "rating": rating,
+            "category": response.xpath("//ul[@class='breadcrumb']/li[3]/a/text()").get(
                 default=""
             ),
+            "upc": response.xpath(
+                "//th[text()='UPC']/following-sibling::td/text()"
+            ).get(default=""),
             "description": response.css("#product_description ~ p::text").get(
                 default=""
             ),
