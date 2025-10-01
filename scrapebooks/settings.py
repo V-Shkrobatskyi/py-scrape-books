@@ -16,15 +16,21 @@ ADDONS = {}
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = "scrapebooks (+http://www.yourdomain.com)"
+USER_AGENT = "scrapebooks (+https://github.com/V-Shkrobatskyi)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = False
+# ROBOTSTXT_OBEY = True
 
 # Concurrency and throttling settings
 # CONCURRENT_REQUESTS = 16
 CONCURRENT_REQUESTS_PER_DOMAIN = 1
 DOWNLOAD_DELAY = 1
+
+# MAXIMUM SPEED SETTINGS
+# CONCURRENT_REQUESTS = 16
+# CONCURRENT_REQUESTS_PER_DOMAIN = 8
+# DOWNLOAD_DELAY = 0
+# LOG_LEVEL = 'WARNING'
 
 # Disable cookies (enabled by default)
 # COOKIES_ENABLED = False
@@ -58,9 +64,7 @@ DOWNLOAD_DELAY = 1
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    "scrapebooks.pipelines.ScrapebooksPipeline": 300,
-# }
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
